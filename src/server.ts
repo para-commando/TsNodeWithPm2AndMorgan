@@ -1,8 +1,9 @@
 
-const fs=require('fs');
-const path = require("path");
+
 
 ////////////////////////////////////////////////////////////////////////////////
+const fs=require('fs');
+const path = require("path");
 const express = require('express');
 const morgan = require('morgan')
 const app = express(); 
@@ -66,8 +67,13 @@ app.use(express.urlencoded({ extended: true,
 
          const acceptsEncodings = req.acceptsEncodings('gzip') ;
         if (acceptsEncodings) {
-          // The request is expecting 'gzip'
-          res.setHeader('Content-Encoding', 'gzip')
+        // setting multiple value for the Content-Encoding header so that multiple accepted encoding schemes can be represented
+
+        // res.append is used to set multiple value for the same header and res.setHeader() overwrites the value of a header
+          res.append('Content-Encoding', 'deflate')
+          res.append('Content-Encoding', 'identity')
+          res.append('Content-Encoding', 'gzip')
+
           console.log('This is compressed with gzip');
         }
 
@@ -246,32 +252,9 @@ app.get('/accepts', (req:any, res:any) => {
   }
 });
 
-////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-// testing req.app( ) and res.app( )
-app.get('/', function(req:any, res:any) {
-  // Get the application object from the request
-  const app = req.app;
-
-  // Access the application-level title property
-  const title = app.locals.title;
-  const resApp = res.app;
-
-  // Access the application-level logger function
-  const logger = resApp.logger;
-
-  // Log a message
-  logger.info('Request received');
-  // Render the response
-  res.send(title);
-});
-
-
-// used app.use() inside of app.get()
-app.get('/', function(req:any, res:any) {
+// testing nested apps
+// used app.use() and app.get() inside of parent app.get()
+app.get('/testingNestedApps', function(req:any, res:any) {
   // Check if the headers have already been sent
   if (!res.headersSent) {
     // Set the Content-Type header
@@ -299,49 +282,69 @@ app.get('/', function(req:any, res:any) {
   res.render('index');
 });
 
-// testing feature to download files
-
-app.get("/download", (req:any, res:any) => {
-  const filename = "opencv.pdf";
-  const filepath = path.join(__dirname, "opencv.pdf");
-
-  res.attachment(filename);
-  res.sendFile(filepath);
-});
-
 // testing feature to download images
 
 app.get("/download", (req:any, res:any) => {
-  console.log("🚀 ~ file: server.ts:358 ~ app.get ~ req:", req.headers)
-  const filename = "Anirudh-Nayak (1).jpg";
-  const filepath = path.join(__dirname, "Anirudh-Nayak (1).jpg");
+  const filename = "Anirudh-Nayak(1).jpg";
+  const filepath = path.join(__dirname, filename);
 // can use both the attachment and the sendfile as above but this is better
-  res.download(filename);
+  res.download(filepath);   
 });
 
 // testing cookie implementation as the code below will store a cookie in the users browser
-app.get("/", (req:any, res:any) => {
-  res.cookie("####!!!1111aaaaa", "value", {
+app.get("/cookies", (req:any, res:any) => {
+
+  // now these cookies are returned only when the domain name and path    matches for the requested endpoint.
+  res.cookie("myChocoCookie", "value", {
     expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
     maxAge: 86400,
     // provide proper domain name else it will get rejected
-    domain: "localhost",
-    path: "/",
+    domain:  req.hostname,
+    // endpoint name
+    path: req.originalUrl,
     secure: true,
     // note that signed feature is turned on so a verification logic might be reqd to implement
-    signed:true,
+    // signed:true,
     httpOnly: true,
   });
 
   // can send object in place of value too like this note that options is identical to those given to res.cookie(), excluding expires and maxAge.
-  res.cookie('cart', { items: [1, 2, 3] }, { maxAge: 900000 })
+  res.cookie('cart55', { items: [1, 2, 3] }, { maxAge: 900000,
+    domain:  req.hostname,
+    path: req.originalUrl, })
 
   // clearing a specific cookie
-  res.clearCookie('name', { path: '/admin' })
+  res.clearCookie('cart', { path: '/' })
 
 
   res.send("Hello, world!");
 });
+
+// testing res.redirect()
+
+app.get('/resRedirect', (req:any, res:any) => {
+
+  res.redirect('http://localhost:3000/res.links', 302);
+
+  // Redirects can be relative to the current URL. For example, from `http://example.com/blog/admin/` (notice the trailing slash), the following would redirect to the URL `http://example.com/blog/admin/post/new`.
+  // res.redirect('post/new')
+});
+
+
+// testing res.sendStatus()
+
+app.get("/resSendStatus", (req:any, res:any) => {
+  // sends corresponding status message as response if its a valid status code else the same status code number is sent in the response
+  res.sendStatus(503)
+ });
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
 // testing res.format()
 
@@ -386,34 +389,10 @@ app.get('/res.links', (req:any, res:any) => {
   res.json(data);
 });
 
-// testing res.redirect()
-
-app.get('/resRedirect', (req:any, res:any) => {
-
-  res.redirect('http://localhost:3000/res.links', 302);
-
-  // Redirects can be relative to the current URL. For example, from `http://example.com/blog/admin/` (notice the trailing slash), the following would redirect to the URL `http://example.com/blog/admin/post/new`.
-  // res.redirect('post/new')
-});
-
-// testing res.sendStatus()
-
-app.get("/resSendStatus", (req:any, res:any) => {
-  // sends corresponding status message as response if its a valid status code else the same status code number is sent in the response
-  res.sendStatus(503)
- });
 
 
 
-// testing etags in express
 
-app.get("/download", (req:any, res:any) => {
-  console.log("🚀 ~ file: server.ts:358 ~ app.get ~ req:", req.headers)
-  const filename = "opencv.pdf";
-  const filepath = path.join(__dirname, "opencv.pdf");
 
-// at first the this api will send status code of 200 then the code will be 304 if not modification to the file is been made
-  res.download(filename);
-});
-
+ 
 app.listen(3000);
