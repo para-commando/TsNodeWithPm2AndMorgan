@@ -3,6 +3,82 @@ const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const app = express();
+const helmet = require('helmet');
+
+app.use(helmet({
+
+  cors: {
+    // The origin directive specifies the origins that are allowed to make requests to the server. In this case, the directive is set to *, which means that any origin is allowed to make requests to the server.
+    origin: ["*"],
+    // The methods directive specifies the methods that are allowed for cross-origin requests. In this case, the directive is set to GET, POST, PUT, and DELETE, which means that these methods are allowed for cross-origin requests.
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  },
+  // The xssFilter option uses the X-XSS-Protection header to block XSS attacks. This header tells the browser to block any attempts to inject malicious code into the page. XSS attacks are a type of security vulnerability that can be used to inject malicious code into a web page. This malicious code can then be executed by the victim's browser, which can lead to a variety of problems, such as stealing the victim's personal information or taking control of their computer
+  xssFilter: true,
+  // The nosniff property is used to mitigate MIME type sniffing attacks. MIME type sniffing is a technique that can be used to trick a browser into loading a resource as a different type than it actually is. This can be used to exploit vulnerabilities in browsers or to deliver malicious content to users.
+  nosniff: true,
+  // used to configure the HTTP Strict Transport Security (HSTS) header. HSTS is a security header that tells browsers to only connect to your website over HTTPS. This can help to protect your website from man-in-the-middle attacks.
+
+// The maxAge property specifies the amount of time (in seconds) that the browser should remember the HSTS header. The default value is 31536000 seconds (one year).
+
+// The includeSubDomains property specifies whether the HSTS header should apply to subdomains of your website. The default value is false.
+
+// Setting maxAge to a high value and includeSubDomains to true is a good security practice that can help to protect your website from man-in-the-middle attacks.
+  hsts: {
+    maxAge: 63072000,
+    includeSubDomains: true,
+  },
+  contentSecurityPolicy: {
+    // This directive specifies the default source for loading resources (such as scripts, stylesheets, images) when no other directive explicitly specifies a source. In this case, 'self' allows resources to be loaded from the same domain (the server itself), and 'https:' allows loading resources from any HTTPS source.
+    defaultSrc: ["'self'", 'https:'],
+    // This directive specifies the valid sources for making network requests or connections. 'self' allows requests to be made to the same domain (the server itself), and 'https:' allows requests to be made to any HTTPS source.
+    connectSrc: ["'self'", 'https:'],
+    // This directive enables the browser to automatically upgrade HTTP requests to HTTPS. It instructs the browser to replace any insecure (HTTP) requests with secure (HTTPS) requests.
+    upgradeInsecureRequests: true,
+    // This directive configures the X-Frame-Options header, which helps prevent clickjacking attacks by specifying whether a page can be displayed within an iframe. In this case, the disable option is set to true, disabling the X-Frame-Options header.
+    frameGuard: {
+      disable: true,
+    },
+    // default-src: This directive sets the default source for loading resources if no other directive explicitly specifies a source. In this case, 'self' allows resources to be loaded from the same domain (the server itself), and 'https:' allows loading resources from any HTTPS source.
+
+    // img-src: This directive specifies valid sources for loading images. In this example, * allows loading images from any source, and data: allows inline data URIs for images.
+
+    //  style-src: This directive specifies valid sources for loading stylesheets. 'self' allows loading stylesheets from the same domain (the server itself), 'https:' allows loading stylesheets from any HTTPS source, and 'unsafe-inline' allows inline styles to be applied.
+
+    // script-src: This directive specifies valid sources for loading scripts. 'self' allows loading scripts from the same domain (the server itself), 'https:' allows loading scripts from any HTTPS source, 'unsafe-inline' allows inline scripts to be executed, and 'unsafe-eval' allows the use of eval() and similar dynamic code execution.
+
+    // font-src: This directive specifies valid sources for loading fonts. 'self' allows loading fonts from the same domain (the server itself), 'https:' allows loading fonts from any HTTPS source, and data: allows inline data URIs for fonts.
+
+
+    policy: "default-src 'self' https:; img-src * data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; font-src 'self' https: data:;",
+  },
+  //crossOriginEmbedderPolicy property in the Helmet middleware code is used to configure the Cross-Origin Embedder Policy (COEP) header. COEP is a security header that can help to prevent cross-site scripting (XSS) attacks.
+
+// The policy property specifies the policy that should be used for COEP. The value of require-corp means that iframes from other origins can only be embedded in your website if they are loaded over HTTPS and if they have a valid Content-Security-Policy header.
+
+// Setting the policy property to require-corp is a good security practice that can help to protect your website from XSS attacks.
+
+
+  crossOriginEmbedderPolicy: {
+    policy: "require-corp",
+  },
+//   The crossOriginOpenerPolicy header is used to control the behavior of the window or browsing context when navigating across different origins. The same-origin value of the policy property specifies that the browsing context should only be allowed to navigate to URLs that have the same origin as the current page. This helps protect against certain types of attacks, such as cross-origin phishing and cross-site tab-nabbing.
+
+// In brief, the crossOriginOpenerPolicy header helps to isolate browsing contexts between different origins, which can help to prevent potential cross-origin attacks.
+  crossOriginOpenerPolicy: {
+    policy: "same-origin",
+  },
+  crossOriginResourcePolicy: {
+    policy: "same-origin",
+  },
+  originAgentCluster: true,
+  referrerPolicy: "no-referrer" ,
+  xContentTypeOptions: true,
+  xDnsPrefetchControl: "off",
+  xDownloadOptions: "noopen",
+  xFrameOptions: "deny",
+  xPermittedCrossDomainPolicies: "none",
+}));
 
 // The express() function returns an app object, which is the main application object in Express. The app object can be used to configure the application, such as setting the port number, loading middleware, and defining routes.
 
