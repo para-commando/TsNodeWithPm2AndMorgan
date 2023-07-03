@@ -68,17 +68,33 @@ app.use(helmet({
   crossOriginOpenerPolicy: {
     policy: "same-origin",
   },
-  crossOriginResourcePolicy: {
-    policy: "same-origin",
-  },
-  originAgentCluster: true,
-  referrerPolicy: "no-referrer" ,
-  xContentTypeOptions: true,
-  xDnsPrefetchControl: "off",
-  xDownloadOptions: "noopen",
-  xFrameOptions: "deny",
-  xPermittedCrossDomainPolicies: "none",
-}));
+ // The crossOriginResourcePolicy option in Helmet is used to control how resources from your site can be loaded cross-origin. The policy property can be set to one of the following values:
+    // same-origin: This is the default value. It prevents resources from being loaded from other origins.
+    // same-origin-allow-opener: This allows resources to be loaded from other origins, but only if they are opened by your site.
+    // unsafe-inline: This allows resources to be loaded from any origin, even if they are not opened by your site. This is very insecure and should not be used.
+    // none: This disables the Cross-Origin Resource Policy header.
+    crossOriginResourcePolicy: {
+      // To load resources from other origins in this case, you would need to set the crossOriginResourcePolicy option to same-origin-allow-opener. This would allow resources from other origins to be loaded, but only if they are opened by your site.
+      policy: 'same-origin-allow-opener',
+    },
+    // The originAgentCluster option in Helmet is used to control how process isolation is handled in your application. When this option is set to true, it tells the browser to isolate each request based on the origin and user agent of the request. This helps to protect your application from cross-site request forgery (CSRF) attacks.
+
+    //CSRF attacks are a type of attack where an attacker tricks a user into making a malicious request to your application. This can be done by embedding a malicious link in an email or social media post. When the user clicks on the link, it will make a request to your application with the user's credentials. If the request is not properly protected, the attacker can then use the user's credentials to make unauthorized changes to the user's account.
+
+    // Setting the originAgentCluster option to true helps to protect your application from CSRF attacks by isolating each request based on the origin and user agent of the request. This means that even if the user clicks on a malicious link, the request will only be able to access resources from the same origin as the link. This prevents the attacker from using the user's credentials to make unauthorized changes to the user's account.
+    originAgentCluster: true,
+    // If you do not set the referrerPolicy header, the Referrer header will be set to the URL of the page that the user was on before they came to your site. The Referrer header can store up to 5 previous URLs, but the actual number of URLs that are stored can vary depending on the browser and the operating system. For example, Chrome stores up to 5 previous URLs, while Firefox stores up to 3 previous URLs. example case If a user visited 2 sites where the Referrer Policy was not set, the 2 URLs will be stored in the Referrer header. When the user visits your website where the Referrer Policy is set to no-referrer, the Referrer header will not be set at all. This means that the 2 URLs that were stored in the Referrer header will be discarded.
+
+
+    referrerPolicy: 'no-referrer',
+    // If you set the xContentTypeOptions header to true, the browser will not be able to MIME sniff files. This means that the browser will not be able to guess the MIME type of a file based on its filename or extension. Instead, the browser will need to rely on the MIME type that is set in the Content-Type header. If a malicious user tries to send a file with a malicious MIME type to the / route, the browser will not be able to render the file. This will help to protect your site from malicious files.
+    xContentTypeOptions: true,
+
+    xDnsPrefetchControl: 'off',
+    xDownloadOptions: 'noopen',
+    xFrameOptions: 'deny',
+    xPermittedCrossDomainPolicies: 'none',
+  }));
 
 // The express() function returns an app object, which is the main application object in Express. The app object can be used to configure the application, such as setting the port number, loading middleware, and defining routes.
 
