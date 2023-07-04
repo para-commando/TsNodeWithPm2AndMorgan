@@ -89,10 +89,30 @@ app.use(helmet({
     referrerPolicy: 'no-referrer',
     // If you set the xContentTypeOptions header to true, the browser will not be able to MIME sniff files. This means that the browser will not be able to guess the MIME type of a file based on its filename or extension. Instead, the browser will need to rely on the MIME type that is set in the Content-Type header. If a malicious user tries to send a file with a malicious MIME type to the / route, the browser will not be able to render the file. This will help to protect your site from malicious files.
     xContentTypeOptions: true,
+    // The helmet.dnsPrefetchControl() middleware sets the X-DNS-Prefetch-Control header on your HTTP responses. This header controls DNS prefetching, which is a feature by which browsers proactively perform domain name resolution on both links that the user may choose to follow as well as URLs for items referenced by the document, including images, CSS, JavaScript, and so forth.
 
+    // This functionhe 'off' option for helmet.dnsPrefetchControl() tells the browser to disable DNS prefetching. This can improve user privacy, as it prevents the browser from sending DNS queries for domains that the user may not actually visit. However, it can also slightly decrease performance, as the browser will have to resolve DNS queries when the user actually clicks on a link.
+    // the browser guesses the domain/link the user might click on next based on either user's browsing history or on the current site the user is in.
     xDnsPrefetchControl: 'off',
+    // The helmet.xDownloadOptions() middleware sets the X-Download-Options header on your HTTP responses. This header controls how browsers handle downloads. The 'noopen' option for helmet.xDownloadOptions() tells the browser to not open downloaded files in the browser window. Instead, the user will be prompted to save the file to their computer.This can help to protect users from malicious downloads, as it prevents them from being tricked into running malicious code.
+
+    // example: Suppose your app allows users to download files. A malicious user could upload a malicious file to your app, and then trick a user into downloading the file. If the user's browser opens the file in the browser window, the malicious code could be executed. However, if the user's browser is configured to honor the X-Download-Options: noopen header, the file will not be opened in the browser window. Instead, the user will be prompted to save the file to their computer. This will prevent the malicious code from being executed.
     xDownloadOptions: 'noopen',
+    //     The helmet.xFrameOptions() middleware sets the X-Frame-Options header on your HTTP responses. This header controls whether or not a browser can be embedded in an iframe. The 'deny' option for helmet.xFrameOptions() tells the browser to not embed your app in an iframe.
+
+    // This can help to protect your app from clickjacking attacks, which are a type of attack where a malicious website tricks a user into clicking on a link that they think is from your app, but is actually from the malicious website.
+
+    // For example, suppose you have a website that allows users to login to their accounts. A malicious website could embed your website in an iframe on their website. They could then make the iframe look like a login page for a different website, such as a bank or a social media platform. If a user clicks on the login button on the iframe, they will actually be logging into the malicious website.
+
+    // The X-Frame-Options header can help to protect your app from clickjacking attacks by telling the browser to not embed your app in an iframe. This will prevent a malicious website from embedding your app in an iframe and tricking users into clicking on malicious links.
+
+
     xFrameOptions: 'deny',
+//     By setting the X-Permitted-Cross-Domain-Policies header to none, you are effectively disabling cross-domain policies. This means that no content from your website will be able to interact with content from other websites. This can be a good security measure, as it can help to prevent cross-site scripting (XSS) attacks and other attacks that exploit cross-domain vulnerabilities.
+
+// However, there are some drawbacks to setting the X-Permitted-Cross-Domain-Policies header to none. For example, it will prevent your website from being embedded in other websites. If you want to allow your website to be embedded in other websites, then you will need to use a different value for the header.
+
+// Ultimately, the decision of whether or not to set the X-Permitted-Cross-Domain-Policies header to none is a trade-off between security and functionality. If you are concerned about security, then setting the header to none is a good option. However, if you need your website to be embedded in other websites, then you will need to use a different value for the header.
     xPermittedCrossDomainPolicies: 'none',
   }));
 
