@@ -2,8 +2,42 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
-const app = express();
 const helmet = require('helmet');
+const responseTime = require('response-time');
+const jwt = require('jsonwebtoken');
+
+// use this logic to generate a token based on the secrete key
+// const token = jwt.sign(
+//   { username: 'req.body.username' },
+//   'process.env.JWT_SECRET',
+//   { expiresIn: 3600 }
+// );
+// res.header('Authorization', 'Bearer ' + token);
+
+const app = express();
+
+app.use(responseTime({
+  header: 'X-Response-Time',
+},(req:any, res:any,next:any) => {
+  // Do something with the response time.
+  next();
+}));
+const authenticateToken = (req:any, res:any, next:any) => {
+  const token = req.headers['Authorization'];
+  if (!token) {
+    return res.status(401).send('Unauthorized');
+  }
+
+  try {
+    const decodedToken = jwt.decode(token, process.env.JWT_SECRET);
+    req.decodedTokenData = decodedToken;
+    next();
+  } catch (error:any) {
+    return res.status(401).send(error.message);
+  }
+};
+
+app.use(authenticateToken);
 
 app.use(helmet({
 
@@ -114,7 +148,9 @@ app.use(helmet({
 
 // Ultimately, the decision of whether or not to set the X-Permitted-Cross-Domain-Policies header to none is a trade-off between security and functionality. If you are concerned about security, then setting the header to none is a good option. However, if you need your website to be embedded in other websites, then you will need to use a different value for the header.
     xPermittedCrossDomainPolicies: 'none',
-  }));
+  }),(req:any, res:any, next:any) => {
+// calling next middleware in the queue    next();
+  });
 
 // The express() function returns an app object, which is the main application object in Express. The app object can be used to configure the application, such as setting the port number, loading middleware, and defining routes.
 
@@ -127,7 +163,10 @@ const router = express.Router({
 });
 
 // required in Express when you want to parse incoming JSON requests and put the parsed data in the req.body property. This is useful when you need to access the JSON data in your routes, controllers, or other middleware.
-app.use(express.json());
+app.use(express.json(),(req:any, res:any, next:any) => {
+  // Do something with the request.
+  next();
+});
 
 // this middleware can be used as path specific like especially the verify part can be tailored for that like the schema validation library like joi could be used here
 
@@ -211,7 +250,10 @@ app.use(
 
       return true;
     },
-  })
+  }),(req:any, res:any, next:any) => {
+    // Do something with the request.
+    next();
+  }
 );
 
 // triggered upon emitting of the corresponding even using app.emit()
