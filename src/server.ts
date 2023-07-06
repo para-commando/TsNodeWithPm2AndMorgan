@@ -109,7 +109,7 @@ app.use(helmet({
     // none: This disables the Cross-Origin Resource Policy header.
     crossOriginResourcePolicy: {
       // To load resources from other origins in this case, you would need to set the crossOriginResourcePolicy option to same-origin-allow-opener. This would allow resources from other origins to be loaded, but only if they are opened by your site.
-      policy: 'same-origin-allow-opener',
+      policy: 'same-origin',
     },
     // The originAgentCluster option in Helmet is used to control how process isolation is handled in your application. When this option is set to true, it tells the browser to isolate each request based on the origin and user agent of the request. This helps to protect your application from cross-site request forgery (CSRF) attacks.
 
